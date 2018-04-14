@@ -16,16 +16,12 @@ import sys
 from input_file_parsing import parse_calib
 from image_loader import load_image
 from data_reduction_smooth import data_reduction
-from save_Qchi import save_Qchi
-from save_1Dplot import save_1Dplot
-from save_1Dcsv import save_1Dcsv
-from extract_max_ave_intensity import extract_max_ave_intensity
-from extract_peak_number import extract_peak_num
+
+from saveDimRedPack import save_Qchi, save_1Dplot, save_1Dcsv, save_texture_plot_csv
+from extDimRedPack import ext_max_ave_intens, ext_peak_num, ext_text_extent, ext_SNR
+
 from add_feature_to_master import add_feature_to_master
-from save_texture_plot_csv import save_texture_plot_csv
-from extract_texture_extent import extract_texture_extent
 from nearest_neighbor_cosine_distances import nearst_neighbor_distance
-from extract_signal_to_noise_ratio import extract_SNR
 from reportFn import addFeatsToMaster
 
 def SAXSDimReduce(calibPath, pathname, Qrange=None):
@@ -87,7 +83,7 @@ def SAXSDimReduce(calibPath, pathname, Qrange=None):
     save_1Dcsv(Qlist, IntAve, fileRoot, save_path)
     # extract composition information if the information is available
     # extract the number of peaks in 1D spectra as attribute3 by default
-    newRow3, peaks = extract_peak_num(Qlist, IntAve, index)
+    newRow3, peaks = ext_peak_num(Qlist, IntAve, index)
     attDict['numPeaks'] = len(peaks)
     #attribute3.append(newRow3)
     #attributes = np.array(attribute3)
@@ -97,7 +93,7 @@ def SAXSDimReduce(calibPath, pathname, Qrange=None):
 
     if True: 
         # extract maximum/average intensity from 1D spectra as attribute1
-        newRow1 = extract_max_ave_intensity(IntAve, index)
+        newRow1 = ext_max_ave_intens(IntAve, index)
         attDict['scanNo'], attDict['Imax'], attDict['Iave'], attDict['I_ratio'] = newRow1
         #attribute1.append(newRow1)
         #attributes = np.concatenate((attribute1, attributes), axis=1)
@@ -106,7 +102,7 @@ def SAXSDimReduce(calibPath, pathname, Qrange=None):
         # save 1D texture spectra as a plot (*.png) and *.csv
         Qlist_texture, texture = save_texture_plot_csv(Q, chi, cake, fileRoot, save_path)
         # extract texture square sum from the 1D texture spectra as attribute2
-        newRow2 = extract_texture_extent(Qlist_texture, texture, index)
+        newRow2 = ext_text_extent(Qlist_texture, texture, index)
         attDict['textureSum'] = newRow2[1]
         #attribute2.append(newRow2)
         #attributes = np.concatenate((attribute2, attributes), axis=1)
@@ -120,7 +116,7 @@ def SAXSDimReduce(calibPath, pathname, Qrange=None):
 
     if True:
         # extract signal-to-noise ratio
-        newRow5 = extract_SNR(index, IntAve)
+        newRow5 = ext_SNR(index, IntAve)
         attDict['SNR'] = newRow5[1]
         #attribute5.append(newRow5)
         #attributes = np.concatenate((attribute5, attributes), axis=1)

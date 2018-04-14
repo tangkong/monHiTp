@@ -91,7 +91,6 @@ def peakFitBBA(filepath):
     paramDict, litFWHM = bumpFindFit(dataIn, peakShape, numCurves, 
                             savePath, basename(csvFilepath)[:-7])
     
-
     # Print information to terminal, print data to csv
     print('---------Fitting Finished')
     print('Fit ({0}) curve(s) per peak'.format(paramDict['numCurves']))
@@ -107,10 +106,65 @@ def peakFitBBA(filepath):
     # Add features to master metadata
     # hard pull items for now
     attDict['scanNo'] = int(index)
-    attDict['FSDP_loc'], attDict['FSDP_FWHM'], attDict['FSDP_Intens'] = findFSDP(litFWHM) 
-    attDict['maxPeak_loc'], attDict['maxPeak_FWHM'], attDict['maxPeak_Intens'] = findMaxPeak(litFWHM)
+    attDict['FSDP_loc'], attDict['FSDP_FWHM'], attDict['FSDP_Intens'] = findFitFSDP(paramDict) 
+    attDict['maxPeak_loc'], attDict['maxPeak_FWHM'], attDict['maxPeak_Intens'] = findFitMaxPeak(paramDict)
     addFeatsToMaster(attDict, masterPath)
 
+def findFitFSDP(inputDict):
+    '''
+    takes fit FWHM dictionary (paramDict) and returns tuple with FSDP loc and FWHM
+    v0.2: include intensity
+    '''
+    locList = np.array([])
+    FWHMList = np.array([])
+    intList = np.array([])
+    peakNum = np.array([])
+    for key, item in inputDict.items():
+        if type(key) is not str:
+            for paramList in item:
+                if paramList[0] > 2.0:
+                    peakNum = np.append(peakNum, key)
+                    locList = np.append(locList, paramList[0])
+                    FWHMList = np.append(FWHMList, paramList[5])
+                    intList = np.append(intList, paramList[2])
+
+    # grab item with lowest x0 
+    minPeakLocIndex = np.where(locList == min(locList))
+    peakIndices = np.where(peakNum == peakNum[minPeakLocIndex])
+    
+    # compare curves within peak with lowest x0
+    i = np.where(intList == max(intList[peakIndices]))
+
+    return locList[i], FWHMList[i], intList[i]
+    print(locList[i], FWHMList[i], intList[i])
+
+def findFitMaxPeak(inputDict):
+    '''
+    takes fit FWHM dictionary and returns tuple with FSDP loc and FWHM
+    v0.2: include intensity
+    '''
+    locList = np.array([])
+    FWHMList = np.array([])
+    intList = np.array([])
+    peakNum = np.array([])
+    for key, item in inputDict.items():
+        if type(key) is not str:
+            for paramList in item:
+                if paramList[0] > 2.0:
+                    peakNum = np.append(peakNum, key)
+                    locList = np.append(locList, paramList[0])
+                    FWHMList = np.append(FWHMList, paramList[5])
+                    intList = np.append(intList, paramList[2])
+
+    # grab curve with lowest x0 
+    maxIntIndex = np.where(intList == max(intList))
+    # find peak with found x0
+    peakIndices = np.where(peakNum == peakNum[maxIntIndex])
+    
+    # compare curves within peak with lowest x0
+    i = np.where(intList == max(intList[peakIndices]))
+
+    return locList[i], FWHMList[i], intList[i]
 
 def findFSDP(litFWHM):
     '''

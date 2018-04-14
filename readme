@@ -1,0 +1,40 @@
+###############################################################################
+Monitor HiTp readme
+Author: Robert Tang-Kong
+###############################################################################
+
+
+------------Dependencies:
+-------------------------------------------------------------------------------
+monitorWrap
+    pyinotify
+    Tkinter
+    ->monDimReduce
+    ->peakBBA
+    ->save_wafer_heatMap
+monDimReduce
+    parsing_calib
+    image_loader
+    data_reduction_smooth
+    save_Qchi
+    save_1Dplot
+    save_1Dcsv
+    extract_max_ave_intensity
+    extract_peak_number
+    save_texture_plot_csv
+    extract_texture_extent
+    nearest_neighbor_cosine_distances
+    extract_signal_to_noise_ratio
+    reportFn
+peakBBA
+    BlockData
+    peakFitResidIter
+    bumpFindFIt
+    reportFn
+
+
+
+------------Notes
+Config file for:
+    Peak fitting params (peak shape, peak number)
+    Integration range (Qbounds)

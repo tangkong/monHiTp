@@ -22,10 +22,16 @@ def data_reduction(imArray, d, Rot, tilt, lamda, x0, y0, PP, pixelsize, Qrange=N
 
     detector_mask = np.ones((s1,s2))*(imArray <= 0)
     p = pyFAI.AzimuthalIntegrator(wavelength=lamda)
-    p.setFit2D(d,x0,y0,tilt,Rot,pixelsize,pixelsize) # refer to http://pythonhosted.org/pyFAI/api/pyFAI.html for pyFAI parameters
-    cake,Q,chi = p.integrate2d(imArray,1000, 1000, mask = detector_mask, polarization_factor = PP)
+    
+    # refer to http://pythonhosted.org/pyFAI/api/pyFAI.html for pyFAI parameters
+    p.setFit2D(d,x0,y0,tilt,Rot,pixelsize,pixelsize) 
+   
     # the output unit for Q is angstrom-1
-    Q = Q * 10e8  # the pyFAI output unit for Fit2D gemoetry is not correct. Multiply by 10e8 for correction
+    cake,Q,chi = p.integrate2d(imArray,1000, 1000, 
+                            mask = detector_mask, polarization_factor = PP)
+    
+    # pyFAI output unit for Fit2D gemoetry incorrect. Multiply by 10e8 for correction
+    Q = Q * 10e8  
     chi = chi+90
 
     Qlist, IntAve = p.integrate1d(imArray, 1000, mask = detector_mask, polarization_factor = PP)
@@ -35,9 +41,8 @@ def data_reduction(imArray, d, Rot, tilt, lamda, x0, y0, PP, pixelsize, Qrange=N
 
     # only return Q, Chi, Int within Qrange
     if Qrange:
-        print(Qrange)
+        indexes = np.where(np.logical_and(Qlist>=Qrange[0], Qlist<=Qrange[1]))
         print(len(Q))
-        print(len(Qlist))
 
 
     return Q, chi, cake, Qlist, IntAve

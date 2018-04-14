@@ -34,7 +34,7 @@ def genPeakReportCSV(savePath, file, litFWHM, pctErr):
     '''
     with open(savePath + basename(file)[:-4] + '_peakParams.csv', 'wb') as csv_file:
         writer = csv.writer(csv_file)
-        writer.writerow(['peakNumber', 'peakLocation', 'FWHM', '% Error'])
+        writer.writerow(['peakNumber', 'peakLocation', 'FWHM', 'intensity','% Error'])
 
         for key, item in litFWHM.items():
             writer.writerow([key] + list(item) + [pctErr[key]])
