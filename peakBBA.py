@@ -114,6 +114,7 @@ def findFitFSDP(inputDict):
     '''
     takes fit FWHM dictionary (paramDict) and returns tuple with FSDP loc and FWHM
     v0.2: include intensity
+    Assumes [xloc, yloc, intensity, {peak params}, FWHM]
     '''
     locList = np.array([])
     FWHMList = np.array([])
@@ -122,10 +123,11 @@ def findFitFSDP(inputDict):
     for key, item in inputDict.items():
         if type(key) is not str:
             for paramList in item:
-                if paramList[0] > 2.0:
+                # param list: [x-loc
+                if paramList[0] > 2.0 and paramList[0] < 4.0 and paramList[-1] < 2.0:
                     peakNum = np.append(peakNum, key)
                     locList = np.append(locList, paramList[0])
-                    FWHMList = np.append(FWHMList, paramList[5])
+                    FWHMList = np.append(FWHMList, paramList[-1])
                     intList = np.append(intList, paramList[2])
 
     # grab item with lowest x0 
@@ -135,8 +137,8 @@ def findFitFSDP(inputDict):
     # compare curves within peak with lowest x0
     i = np.where(intList == max(intList[peakIndices]))
 
+    #print('FSDP:{}'.format((locList[i], FWHMList[i], intList[i])))
     return locList[i], FWHMList[i], intList[i]
-    print(locList[i], FWHMList[i], intList[i])
 
 def findFitMaxPeak(inputDict):
     '''
@@ -150,7 +152,7 @@ def findFitMaxPeak(inputDict):
     for key, item in inputDict.items():
         if type(key) is not str:
             for paramList in item:
-                if paramList[0] > 2.0:
+                if paramList[0] > 2.3:
                     peakNum = np.append(peakNum, key)
                     locList = np.append(locList, paramList[0])
                     FWHMList = np.append(FWHMList, paramList[5])

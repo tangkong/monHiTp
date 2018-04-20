@@ -1,6 +1,9 @@
 import os
 import glob
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 
 def test1():
     # Try SAXSDimReduce independent of other files
@@ -8,16 +11,16 @@ def test1():
     from peakBBA import peakFitBBA
     import re
 
-    monFolder = '/home/b_mehta/monHiTp/testMon'
+    monFolder = '/home/b_mehta/monHiTp/test180420'
     calibPath = '/home/b_mehta/monHiTp/testHold/8Nov17_calib_1.calib'
-    filepath = '/home/b_mehta/monHiTp/testHold/J1_100517_1_24x24_t30r_0001.tif'
+    filepath = '/home/b_mehta/monHiTp/test180420/k3_012918_1_24x24_t45b_0357.tif'
 
     print re.match('.*?([0-9]+).[a-zA-Z]+$',filepath).group(1)
     print re.match('.*?([0-9]+).[a-zA-Z]+$','testfile_32901001001_1x2xp_0101.tiffff').group(1)
 
     print re.match('^(.*?)[0-9]+.[a-zA-Z]+$',filepath).group(1)
     SAXSDimReduce(calibPath, filepath)
-    peakFitBBA(filepath)
+    #peakFitBBA(filepath)
 
 
     # Use Pandas to manage csvs
@@ -27,6 +30,14 @@ def test1():
 
     #df = pd.read_csv(testCSVpath, index_col=0) #read csv, set scanNo as index
     #df.at[2, 'SNR'] = 33 # for writing values
+def viewTif():
+    from image_loader import load_image
+    filepath = '/home/b_mehta/monHiTp/test180420/k3_012918_1_24x24_t45b_0357.tif'
+
+    imArray = load_image(filepath)
+    plt.figure()
+    plt.imshow(imArray)
+    plt.savefig('/home/b_mehta/monHiTp/test180420/test.png')
 
 def paramDictTest():
     paramDict = {}
@@ -68,3 +79,5 @@ def paramDictTest():
     
     print(locList[i], FWHMList[i], intList[i])
                 
+
+test1()

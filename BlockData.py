@@ -88,7 +88,8 @@ class BlockData:
         X, Y = downsamp(20, trimDataX, trimDataY)
 
         x0 = [1,1,1,1,1]
-        result = basinhopping(objFunc, x0)
+        result = basinhopping(objFunc, x0, niter=10) 
+        #appears to converge quickly, take 10 iterations rather than 100
         bkgd_sparse = chebFunc(X, result.x)
         # create function that interpolates sparse bkgd
         f = interp1d(X, bkgd_sparse, kind='cubic', bounds_error=False)

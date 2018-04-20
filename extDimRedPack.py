@@ -33,13 +33,15 @@ def ext_peak_num(Qlist, IntAve, index, a1 = 1, a2 = 20):
 
     peaks_accepted = []
     window = h
-
-    filter = np.nan_to_num(np.sqrt(-(IntAve[2 * h:] - 2 * IntAve[h:-h] 
-                            + IntAve[0:-2 * h])))
+    
+    filter = np.nan_to_num(np.sqrt(np.abs(-(IntAve[2 * h:] - 2 * IntAve[h:-h] 
+                            + IntAve[0:-2 * h]))))
     for peak in peaks:
         # if Qlist[peak] < 3:
-            filterwindow = filter[max(peak - h - window, 0):min(peak - h + window, len(filter))]
-            spectrawindow = IntAve[max(peak - window, h):min(peak + window, len(filter))]
+            filterwindow = filter[max(peak - h - window, 0):min(peak - h + window, 
+                                                                        len(filter))]
+            spectrawindow = IntAve[max(peak - window, h):min(peak + window,
+                                                                        len(filter))]
 
             try:
                 if np.any(filterwindow > spectrawindow / 200):  

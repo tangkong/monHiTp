@@ -24,7 +24,7 @@ from add_feature_to_master import add_feature_to_master
 from nearest_neighbor_cosine_distances import nearst_neighbor_distance
 from reportFn import addFeatsToMaster
 
-def SAXSDimReduce(calibPath, pathname, Qrange=None):
+def SAXSDimReduce(calibPath, pathname, QRange=None, ChiRange=None):
     '''
     Processing script, reducing images to 1D plots (Q-Chi, Texture, etc)
     '''
@@ -75,12 +75,16 @@ def SAXSDimReduce(calibPath, pathname, Qrange=None):
     imArray = load_image(pathname)
 
     # data_reduction to generate Q-chi and 1D spectra, Q
-    Q, chi, cake, Qlist, IntAve = data_reduction(imArray, d, Rot, tilt, 
-                                                lamda, x0, y0, PP, pixelSize, Qrange=Qrange)
+    Q, chi, cake, Qlist, IntAve = data_reduction(imArray, d, Rot, tilt, lamda, x0, y0,
+                                 PP, pixelSize, QRange=QRange, ChiRange=ChiRange)
+    
+    ###### SAVE PLOTS ###############################################################
     # save Qchi as a plot *.png and *.mat
     save_Qchi(Q, chi, cake, fileRoot, save_path)
     # save 1D spectra as a *.csv
     save_1Dcsv(Qlist, IntAve, fileRoot, save_path)
+    
+    ###### EXTRACT ATTRIBUTES #######################################################
     # extract composition information if the information is available
     # extract the number of peaks in 1D spectra as attribute3 by default
     newRow3, peaks = ext_peak_num(Qlist, IntAve, index)
