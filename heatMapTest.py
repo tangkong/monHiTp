@@ -97,9 +97,8 @@ def natcasecmp(a, b):
     return natcmp(a.lower(), b.lower())
 
 def test5():
-    pathname = '/home/b_mehta/data/bl1-5/Mar2018/NREL/FeNbB/data/b0/b0_02290_1_24x24_t45_0180.tif'
+    pathname = '/home/b_mehta/data/bl1-5/Mar2018/CoTaZr/data/k3b/k3_012918_1_24x24_t45b_0469.tif'
     FWHMmap(pathname)
     print('test5 complete')
     
 test5()
-test2()

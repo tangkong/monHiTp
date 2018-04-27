@@ -15,7 +15,7 @@ from reportFn import genOptParamCSV, genPeakReportCSV, addFeatsToMaster
 
 import time
 
-def peakFitBBA(filepath):
+def peakFitBBA(filepath, config):
     '''
     Wrapper for Bayesian Block Analysis of 1D Plots.  
     Takes file path
@@ -40,9 +40,15 @@ def peakFitBBA(filepath):
     masterPath = os.path.join(folder_path, base_filename + 'master.csv')
     attDict = {'scanNo': index}
 
-    peakShape = 'Voigt'
-    numCurves = 2 
-    fit_order = 2 
+    if not config:
+        peakShape = 'Voigt'
+        numCurves = 2 
+        fit_order = 2 
+    else: 
+        peakShape = config['peakShape']
+        numCurves = config['peakNo']
+        fit_order = config['fit_order']
+        print('config read')
     ##############End Input#######################################
     ##############################################################
 
@@ -63,7 +69,10 @@ def peakFitBBA(filepath):
     #### has various functions
     
     # background subtracted with polynomial of order = fit_order, trims ends
-    dataIn.bkgdSub(fit_order=fit_order) 
+    if type(fit_order) is str:
+        dataIn.bkgdSub()
+    else: 
+        dataIn.bkgdSubPoly(fit_order=fit_order) 
     #dataIn.trimSubData() # Trim off some values (taken from original script)
     
     # Plot bkgdSub Data
@@ -90,7 +99,7 @@ def peakFitBBA(filepath):
     # Get optimized parameters from fitting each block and plot
     paramDict, litFWHM = bumpFindFit(dataIn, peakShape, numCurves, 
                             savePath, basename(csvFilepath)[:-7])
-    
+   
     # Print information to terminal, print data to csv
     print('---------Fitting Finished')
     print('Fit ({0}) curve(s) per peak'.format(paramDict['numCurves']))
@@ -106,11 +115,11 @@ def peakFitBBA(filepath):
     # Add features to master metadata
     # hard pull items for now
     attDict['scanNo'] = int(index)
-    attDict['FSDP_loc'], attDict['FSDP_FWHM'], attDict['FSDP_Intens'] = findFitFSDP(paramDict) 
-    attDict['maxPeak_loc'], attDict['maxPeak_FWHM'], attDict['maxPeak_Intens'] = findFitMaxPeak(paramDict)
+    attDict['FSDP_loc'], attDict['FSDP_FWHM'], attDict['FSDP_Intens'] = findFitFSDP(paramDict, litFWHM) 
+    attDict['maxPeak_loc'], attDict['maxPeak_FWHM'], attDict['maxPeak_Intens'] = findFitMaxPeak(paramDict, litFWHM)
     addFeatsToMaster(attDict, masterPath)
 
-def findFitFSDP(inputDict):
+def findFitFSDP(inputDict, litDict):
     '''
     takes fit FWHM dictionary (paramDict) and returns tuple with FSDP loc and FWHM
     v0.2: include intensity
@@ -124,7 +133,10 @@ def findFitFSDP(inputDict):
         if type(key) is not str:
             for paramList in item:
                 # param list: [x-loc
-                if paramList[0] > 2.0 and paramList[0] < 4.0 and paramList[-1] < 2.0:
+                validPeak = (litDict[key][0] > 2.3 and 
+                    paramList[0] < 4.0 and paramList[-1] < 2.0 and
+                    type(litDict[key][1])!=str)
+                if validPeak:
                     peakNum = np.append(peakNum, key)
                     locList = np.append(locList, paramList[0])
                     FWHMList = np.append(FWHMList, paramList[-1])
@@ -140,7 +152,7 @@ def findFitFSDP(inputDict):
     #print('FSDP:{}'.format((locList[i], FWHMList[i], intList[i])))
     return locList[i], FWHMList[i], intList[i]
 
-def findFitMaxPeak(inputDict):
+def findFitMaxPeak(inputDict, litDict):
     '''
     takes fit FWHM dictionary and returns tuple with FSDP loc and FWHM
     v0.2: include intensity
@@ -152,7 +164,7 @@ def findFitMaxPeak(inputDict):
     for key, item in inputDict.items():
         if type(key) is not str:
             for paramList in item:
-                if paramList[0] > 2.3:
+                if litDict[key][0] > 2.3 and type(litDict[key][1])!=str:
                     peakNum = np.append(peakNum, key)
                     locList = np.append(locList, paramList[0])
                     FWHMList = np.append(FWHMList, paramList[5])

@@ -3,4 +3,18 @@
     -Edited criteria for FSDP choice
     -Optimized basin hopping iteration for background fitting
     -Implemented integration limits in image dimension reduction
-    
+
+2018.04.27
+    -Modified thresholding for FSDP, using absolute peak location rather
+        than fit peak location to filter
+    -Passing background config info through to peakBBA
+    -heatmap scan labeling, resizing.  Now saving keyMap, with scan numbers labeled
+    -set spline smoothing to default (works nicely) rather than every point for litFWHM
+
+
+
+
+
+Usage notes:
+    * When restricting integration limits in Q, consider using poly fit rather than chevbyshev.  Using Cheb for single peaks will over-fit backgrounds.  
+    * inputting "pass" or any text in Q-chi limits will cause script to not take any integration bounds

@@ -18,14 +18,14 @@ print('*************************************************************')
 #root = Tkinter.Tk()
 #root.withdraw()
 
-calibPath = os.path.expanduser('~/monHiTp/testHold/8Nov17_calib_1.calib')
+calibPath = os.path.expanduser('/data/b_mehta/bl1-5/Calibration/Mar2018/cal_31mar18.calib')
 #calibPath = tkFileDialog.askopenfilename(title='Select Calibration File')
 if calibPath is '':
     print('No calibration path selected, aborting...')
     sys.exit()
 
-#dataPath = os.path.expanduser('/data/b_mehta/bl1-5/Mar2018/TiAlCo/data/k9a/')
-dataPath = os.path.expanduser('~/monHiTp/test180420/')
+#dataPath = os.path.expanduser('/data/b_mehta/bl1-5/Mar2018/CoTaZr/data/k3b/')
+dataPath = os.path.expanduser('~/monHiTp/testSuchiDebug/')
 #dataPath = tkFileDialog.askdirectory(title='Select folder to process')
 if dataPath is '':
     print('No data folder selected, aborting...')
@@ -54,7 +54,8 @@ if config:
     QRange = (config['Qmin'],config['Qmax'])
     ChiRange = (config['ChiMin'],config['ChiMax'])
     # require all bounds to exist, currently can't check default limits
-    if any(isinstance(n,str) for n in QRange) or any(isinstance(m,str) for m in ChiRange):
+    if (any(isinstance(n,str) for n in QRange) or 
+            any(isinstance(m,str) for m in ChiRange)):
         print('Pass found, ignoring Q,Chi limits')
         QRange, ChiRange = None, None
     peakShape = config['peakShape']
@@ -81,7 +82,7 @@ for filePath in fileGen:
     SAXSDimReduce(calibPath, filePath, QRange=QRange, ChiRange=ChiRange)
     stage1int = time.time()
 
-    peakFitBBA(filePath)
+    peakFitBBA(filePath, config)
     stage2int = time.time()
     ########## Visualization #########################################
     # Pulling info from master CSV
@@ -94,6 +95,7 @@ for filePath in fileGen:
     loopTime += [(end-start)]
     stage1Time += [(stage1int - start)]
     stage2Time += [(stage2int - stage1int)]
+
 
     break
 

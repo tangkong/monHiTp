@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
-import sys
+import os, sys
 
 #import personal modules
 from peakShapes import voigtFn, gaussFn
@@ -216,12 +216,13 @@ def calcFWHM(data, LDatum, RDatum):
     #offset to 0 
     yDataOffset = yData - np.min(yData[domain]) 
     yRange = np.max(yDataOffset[domain])
-    spline = UnivariateSpline(xData[domain], yDataOffset[domain] - yRange/2, s=0)
-
+    spline = UnivariateSpline(xData[domain], yDataOffset[domain] - yRange/2)
+   
     roots = spline.roots()
-
+    
     if len(roots) == 2: 
         return [xData[loc], (roots[1] - roots[0]), np.max(yData[domain])]
     else: 
-        print('number of roots ({0}) != 2'.format(len(roots)))
+        print('number of roots ({0}) != 2, at y={1}'.format(len(roots), yRange/2))
+        print(roots)
         return [xData[loc], 'N/A', np.max(yData[domain])]

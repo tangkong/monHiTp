@@ -47,6 +47,7 @@ def FWHMmap(pathname):
     # finish generating paths
     masterPath = os.path.join(folder_path, base_filename + 'master.csv')
     savePath = os.path.join(folder_path, base_filename + 'FWHMheatMap.png')
+    saveKeyPath = os.path.join(folder_path, base_filename + 'KeyMap.png')
 
     
     #locDF = pd.read_csv(locCSVpath, skiprows=1)
@@ -56,20 +57,34 @@ def FWHMmap(pathname):
     # grab location lists
     plateX = locDF.iloc[:,2].values
     plateY = locDF.iloc[:,1].values
+    scanNo = locDF.index.values
 
     FSDP_FWHM = masterDF['FSDP_FWHM'].values
-    
+
+    if len(FSDP_FWHM) > len(plateY):
+        upperInd = len(plateY)
+        print('more images than scan files predict')
+    else:
+        upperInd = len(FSDP_FWHM)
+
     try: 
-        plt.figure()
-        plt.scatter(plateY[:len(FSDP_FWHM)], plateX[:len(FSDP_FWHM)], c=FSDP_FWHM, 
-                      s=120, marker='s', 
+        plt.figure(figsize=(7,6))
+        plt.scatter(plateY[:upperInd], plateX[:upperInd], c=FSDP_FWHM[:upperInd], 
+                      s=240, marker='s', 
                       linewidths=0.5,edgecolors='k', cmap=cm.viridis_r)
         plt.title('FWHM at FSDP')
-        plt.xlim((-36,36))
-        plt.ylim((-36,36))
+        plt.xlim((-38,38))
+        plt.ylim((-38,38))
         plt.clim((0.2,0.6))
         plt.colorbar()
+        plt.tight_layout()
         plt.savefig(savePath)
+        for i, txt in enumerate(scanNo):
+            plt.annotate(str(txt), (plateY[i], plateX[i]), color='w', size=6, 
+                            ha='center', va='center')
+        
+        plt.title('Scan Number')
+        plt.savefig(saveKeyPath)
         plt.close()
         
         print('Wafer heat map updated')
@@ -133,14 +148,21 @@ def contrastMap(pathname, limit=0.57):
 
     mask = FWHM >= limit
     contDat = mask.astype(int)
+    
+    if len(contDat) > len(plateY):
+        upperInd = len(plateY)
+        print('more images than scan files predict')
+    else:
+        upperInd = len(contDat)
+
     try: 
-        plt.figure()
+        plt.figure(figsize=(7,6))
         plt.scatter(plateY[:len(contDat)], plateX[:len(contDat)], c=contDat, 
-                      s=120, marker='s', 
+                      s=240, marker='s', 
                       linewidths=0.5,edgecolors='k', cmap=cm.viridis_r)
         plt.title('FWHM at FSDP,highlight if FWHM >= {}'.format(limit))
-        plt.xlim((-36,36))
-        plt.ylim((-36,36))
+        plt.xlim((-38,38))
+        plt.ylim((-38,38))
         plt.clim((0.2,0.6))
         plt.colorbar()
         plt.savefig(savePath)

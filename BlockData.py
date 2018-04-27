@@ -88,8 +88,8 @@ class BlockData:
         X, Y = downsamp(20, trimDataX, trimDataY)
 
         x0 = [1,1,1,1,1]
-        result = basinhopping(objFunc, x0, niter=10) 
         #appears to converge quickly, take 10 iterations rather than 100
+        result = basinhopping(objFunc, x0, niter=10) 
         bkgd_sparse = chebFunc(X, result.x)
         # create function that interpolates sparse bkgd
         f = interp1d(X, bkgd_sparse, kind='cubic', bounds_error=False)
@@ -110,7 +110,7 @@ class BlockData:
         self.subData = np.array([finalDataX, finalDataY])
         self.bkgd = bkgd
         
-        print 'background subtraction completed'
+        print '[[ Chevbyshev ]] background sub completed'
 
     def bkgdSubPoly(self, **kwarg):
         '''
@@ -129,7 +129,7 @@ class BlockData:
         self.subData = np.array([fitDataX, fitDataY])
         self.bkgd = np.polyval(self.fitCoeff, self.data[0, 50:-50])
             
-        print 'background subtraction completed'
+        print '[[ polynom order {} ]] background sub completed'.format(self.fit_order)
             
     def trimSubData(self,trimLen=50):
         '''
