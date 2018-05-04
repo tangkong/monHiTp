@@ -27,31 +27,34 @@ def data_reduction(imArray, d, Rot, tilt, lamda, x0, y0, PP, pixelsize,
     
     # refer to http://pythonhosted.org/pyFAI/api/pyFAI.html for pyFAI parameters
     p.setFit2D(d,x0,y0,tilt,Rot,pixelsize,pixelsize) 
+
+    # the output unit for Q is angstrom-1.  Always integrate all in 2D
+    cake,Q,chi = p.integrate2d(imArray,1000, 1000,
+                            #azimuth_range=azRange, radial_range=radRange,
+                            mask = detector_mask, polarization_factor = PP)
+    
+    # pyFAI output unit for Fit2D gemoetry incorrect. Multiply by 10e8 for correction
+    Q = Q * 10e8  
    
+    # create azimuthal range from chi values found in 2D integrate
     # modify ranges to fit with detector geometry
+    centerChi = (np.max(chi) + np.min(chi)) / 2
     if (QRange is not None) and (ChiRange is not None): 
-        azRange = tuple([x-Rot for x in ChiRange])
+        azRange = (centerChi+ChiRange[0] ,centerChi + ChiRange[1] ) 
         radRange = tuple([y/10E8 for y in QRange])
         print(azRange, radRange)
     else: 
         azRange, radRange = None, None
 
-    # the output unit for Q is angstrom-1
-    cake,Q,chi = p.integrate2d(imArray,1000, 1000, 
-                            azimuth_range=azRange, radial_range=radRange,
-                            mask = detector_mask, polarization_factor = PP)
-
-    
-    # pyFAI output unit for Fit2D gemoetry incorrect. Multiply by 10e8 for correction
-    Q = Q * 10e8  
-    chi = chi+90
-    
     Qlist, IntAve = p.integrate1d(imArray, 1000, 
                             azimuth_range=azRange, radial_range=radRange,
                             mask = detector_mask, polarization_factor = PP)
 
     # the output unit for Q is angstrom-1
     Qlist = Qlist * 10e8
+
+    # shift chi from 2D integrate
+    chi = chi - centerChi
 
     return Q, chi, cake, Qlist, IntAve
 

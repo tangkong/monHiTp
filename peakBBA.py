@@ -133,6 +133,7 @@ def findFitFSDP(inputDict, litDict):
         if type(key) is not str:
             for paramList in item:
                 # param list: [x-loc
+                # pick if loc is 2.3 < x < 4.0, and FWHM < 2.0, and litFWHM exists
                 validPeak = (litDict[key][0] > 2.3 and 
                     paramList[0] < 4.0 and paramList[-1] < 2.0 and
                     type(litDict[key][1])!=str)

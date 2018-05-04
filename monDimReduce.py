@@ -93,7 +93,11 @@ def SAXSDimReduce(calibPath, pathname, QRange=None, ChiRange=None):
     #attributes = np.array(attribute3)
 
     # save 1D plot with detected peaks shown in the plot
-    save_1Dplot(Qlist, IntAve, peaks, fileRoot, save_path)
+    if QRange:
+        titleAddStr = ', Q:' + str(QRange) + ', Chi:' + str(ChiRange)
+    else: titleAddStr = '.' 
+    save_1Dplot(Qlist, IntAve, peaks, fileRoot, save_path, 
+                titleAdd=titleAddStr)
 
     if True: 
         # extract maximum/average intensity from 1D spectra as attribute1

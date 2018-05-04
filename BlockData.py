@@ -35,9 +35,9 @@ class BlockData:
         Adapted from Fang Ren segmentation program
         '''
         
-        # Truncate data 
-        trimDataX = self.data[0, 50:-50]
-        trimDataY = self.data[1, 50:-50]
+        # DONT Truncate data 
+        trimDataX = self.data[0]#, 50:-50]
+        trimDataY = self.data[1]#, 50:-50]
 
         def downsamp(size, x, y):
             '''

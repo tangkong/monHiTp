@@ -1,9 +1,11 @@
 import os
+from os.path import expanduser as expUsr  
 import glob
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+import time
 
 def test1():
     # Try SAXSDimReduce independent of other files
@@ -30,6 +32,23 @@ def test1():
 
     #df = pd.read_csv(testCSVpath, index_col=0) #read csv, set scanNo as index
     #df.at[2, 'SNR'] = 33 # for writing values
+
+def test2():
+    
+    # Try SAXSDimReduce independent of other files
+    # Dim reduce on file with broken bound issues
+    from monDimReduce import SAXSDimReduce
+    from peakBBA import peakFitBBA
+    import re
+
+    calibPath = os.path.expanduser('~/monHiTp/test180504/cal_28mar18.calib')
+    filepath = os.path.expanduser('~/monHiTp/test180504/k3_012918_1_24x24_t45b_0001.tif')
+    filepath2 = os.path.expanduser('~/monHiTp/testHold/J1_100517_1_24x24_t30r_0001.tif')
+    calibPath2 = os.path.expanduser('~/monHiTp/testHold/8Nov17_calib_1.calib')
+    SAXSDimReduce(calibPath2, filepath2, QRange=(1.0,5.0), ChiRange=(-20,20))
+
+    SAXSDimReduce(calibPath, filepath, QRange=(1.0,5.0), ChiRange=(-20,20))
+
 def viewTif():
     from image_loader import load_image
     filepath = '/home/b_mehta/monHiTp/test180420/k3_012918_1_24x24_t45b_0357.tif'
@@ -78,6 +97,75 @@ def paramDictTest():
     print(peakIndices)
     
     print(locList[i], FWHMList[i], intList[i])
-                
 
-test1()
+def getAllCalibPath():
+    # map all sample images path to calib file path for error checking
+
+    p = expUsr('~/allSampleTest/')
+    outList = [ (p+'cal_28mar18.calib'), 
+                (p+'cal_2.2deg_8April18.calib'),
+                (p+'cal_1deg_8April18.calib'),
+                (p+'cal_31mar18.calib'),
+                (p+'cal_7April18.calib'),
+                (p+'cal_5April18.calib')]
+
+    return outList
+
+def testInteg():
+    from peakBBA import peakFitBBA
+    from monDimReduce import SAXSDimReduce
+    from input_file_parsing import parse_config
+    calibList = getAllCalibPath()
+
+    dataPath = expUsr('~/allSampleTest/')
+    configPath = expUsr('~/monHiTp/config')
+    fileList = glob.glob(os.path.join(dataPath, '*.tif'))
+
+    fileGen = (x for x in fileList)
+    config = parse_config(configPath)
+    if config: 
+        QRange = (config['Qmin'],config['Qmax'])
+        ChiRange = (config['ChiMin'],config['ChiMax'])
+        # require all bounds to exist, currently can't check default limits
+        if (any(isinstance(n,str) for n in QRange) or 
+                any(isinstance(m,str) for m in ChiRange)):
+            print('Pass found, ignoring Q,Chi limits')
+            QRange, ChiRange = None, None
+        peakShape = config['peakShape']
+        peakNo = config['peakNo']
+        fit_order = config['fit_order']
+        hiLimit = config['highlightLimit']
+    else:
+        #Qrange, peakShape, peakNo, fit_order, hiLimit = None, None, None, None, None
+        print('no config file')
+
+
+    start = time.time()
+    for f in fileGen:
+        if any(x in f for x in ['k1', 'k2', 'k3', 'a1', 'k5']):
+            c = calibList[0]
+        elif any(x in f for x in ['k6', 'k7']):
+            c = calibList[5]
+        elif any(x in f for x in ['k8a']):
+            c = calibList[1]
+        elif any(x in f for x in ['k9a']):
+            c = calibList[2]
+        elif any(x in f for x in ['r5', 'r15']):
+            c = calibList[4]
+        else:
+            c = calibList[3]
+
+        print(f + '\n<===>\n' + c)
+        
+        SAXSDimReduce(c, f, QRange=(1.5,4), ChiRange=(-20,20))
+        peakFitBBA(f, config)
+        
+    end = time.time()
+
+    print(end-start)
+    print(len(fileList)) 
+
+#test1()
+#test2()
+
+testInteg()

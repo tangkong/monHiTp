@@ -11,7 +11,16 @@
     -heatmap scan labeling, resizing.  Now saving keyMap, with scan numbers labeled
     -set spline smoothing to default (works nicely) rather than every point for litFWHM
 
+2018.05.04
+    -Modified integration bounds to only apply to 1D.  2D always fully integrates.  
+        csv now reflects bounds.
+    -Best to use cheby for q restriction, but must keep q range long.
+    -Added skip existing 1D csvs for speeding up runs
+    -Cleaned wafer heat map
 
+    To-Do: 
+        + Look at possibly merging blocks, dealing with peaks with multiple curves w/in
+        + Look into making single file processing script 
 
 
 

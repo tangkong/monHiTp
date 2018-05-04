@@ -43,10 +43,10 @@ def save_1Dcsv(Qlist, IntAve, imageFilename, save_path):
     data= np.concatenate(([Qlist], [IntAve]))
     np.savetxt(os.path.join(save_path, os.path.splitext(imageFilename)[0]+'_1D.csv'), data.T, delimiter=',')
 
-def save_1Dplot(Qlist, IntAve, peaks, imageFilename, save_path):
+def save_1Dplot(Qlist, IntAve, peaks, imageFilename, save_path, titleAdd='.'):
     # generate a column average image
     plt.figure(2)
-    plt.title('Column average')
+    plt.title('Column average' + titleAdd)
     plt.plot(Qlist, IntAve)
     plt.xlabel('Q')
     plt.ylabel('Intensity')

@@ -220,9 +220,9 @@ def calcFWHM(data, LDatum, RDatum):
    
     roots = spline.roots()
     
-    if len(roots) == 2: 
-        return [xData[loc], (roots[1] - roots[0]), np.max(yData[domain])]
+    if len(roots) >= 2: 
+        return [xData[loc], (np.max(roots) - np.min(roots[0])), np.max(yData[domain])]
     else: 
-        print('number of roots ({0}) != 2, at y={1}'.format(len(roots), yRange/2))
+        print('number of roots ({0}) < 2, at y={1}'.format(len(roots), yRange/2))
         print(roots)
         return [xData[loc], 'N/A', np.max(yData[domain])]
