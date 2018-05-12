@@ -18,14 +18,15 @@ print('*************************************************************')
 #root = Tkinter.Tk()
 #root.withdraw()
 
-calibPath = os.path.expanduser('/data/b_mehta/bl1-5/Calibration/Mar2018/cal_28mar18.calib')
+#calibPath = os.path.expanduser('/data/b_mehta/bl1-5/Calibration/Mar2018/cal_28mar18.calib')
+calibPath = os.path.expanduser('~/monHiTp/testBkgdImg/calib_8May18a.calib')
 #calibPath = tkFileDialog.askopenfilename(title='Select Calibration File')
 if calibPath is '':
     print('No calibration path selected, aborting...')
     sys.exit()
 
-dataPath = os.path.expanduser('/data/b_mehta/bl1-5/Mar2018/CoTaZr/data/k3b/')
-#dataPath = os.path.expanduser('~/monHiTp/testSuchiDebug/')
+#dataPath = os.path.expanduser('/data/b_mehta/bl1-5/Mar2018/CoTaZr/data/k3b/')
+dataPath = os.path.expanduser('~/monHiTp/testBkgdImg/')
 #dataPath = tkFileDialog.askdirectory(title='Select folder to process')
 if dataPath is '':
     print('No data folder selected, aborting...')
@@ -37,8 +38,15 @@ if configPath is '':
     print('No config file supplied, aborting...')
     sys.exit()
 
+bkgdPath = os.path.expanduser('~/monHiTp/testBkgdImg/bg/a40_th2p0_t45_center_bg_0001.tif')
+#configPath = tkFileDialog.askopenfilename(title='Select Config File')
+if bkgdPath is '':
+    print('No bkgd file supplied, aborting...')
+    sys.exit()
+    
 print('Calibration File: ' + calibPath)
 print('Config File: ' + configPath)
+print('BkgdImg File: ' + configPath)
 print('Folder to process: ' + dataPath)
 print('')
 
@@ -67,6 +75,17 @@ else:
     #Qrange, peakShape, peakNo, fit_order, hiLimit = None, None, None, None, None
     print('no config file')
 
+############ Background image processsing
+if config['bkgdImg']:
+    print('~~~~~~~~ Processing bkgd image')
+    SAXSDimReduce(calibPath, bkgdPath, config)
+    bkgdPathDir = os.path.dirname(bkgdPath)
+    bkgdPathName = os.path.basename(bkgdPath)
+
+    # config points to csv for further processing
+    config['bkgdPath'] = bkgdPathDir + '/Processed/' + bkgdPathName[:-4] + '_1D.csv'
+################################################
+
 files = fileList[config['startImg']:config['endImg']]
 fileGen = (x for x in files)
 
@@ -75,6 +94,7 @@ stage1Time = []
 stage2Time = []
 for filePath in fileGen:
     filename = os.path.basename(filePath)
+
     if skipExisting:
         fileRoot, ext = os.path.splitext(filename)
         procPath = dataPath+'Processed/'+fileRoot+'_1D.csv'
@@ -89,7 +109,7 @@ for filePath in fileGen:
     print('{0}'.format(filePath))
     print(filename + ' detected, processing')
     ########## Begin data reduction scripts ###########################
-    SAXSDimReduce(calibPath, filePath, QRange=QRange, ChiRange=ChiRange)
+    SAXSDimReduce(calibPath, filePath, config) #QRange=QRange, ChiRange=ChiRange)
     stage1int = time.time()
 
     peakFitBBA(filePath, config)

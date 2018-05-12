@@ -135,6 +135,9 @@ def testInteg():
         peakNo = config['peakNo']
         fit_order = config['fit_order']
         hiLimit = config['highlightLimit']
+        
+
+        config['bkgdPath'] = expUsr('~/monHiTp/')
     else:
         #Qrange, peakShape, peakNo, fit_order, hiLimit = None, None, None, None, None
         print('no config file')
@@ -157,7 +160,7 @@ def testInteg():
 
         print(f + '\n<===>\n' + c)
         
-        SAXSDimReduce(c, f, QRange=(1.5,4), ChiRange=(-20,20))
+        SAXSDimReduce(c, f, config)
         peakFitBBA(f, config)
         
     end = time.time()
@@ -165,7 +168,11 @@ def testInteg():
     print(end-start)
     print(len(fileList)) 
 
-#test1()
-#test2()
+
+def adjGammaPlot():
+    print('test')
+
+################################# Function calls below #######################
+
 
 testInteg()

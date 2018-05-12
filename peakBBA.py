@@ -9,7 +9,6 @@ import re
 
 # Personal package import
 from BlockData import BlockData
-from peakFitResidIter import peakFit
 from bumpFindFit import bumpFindFit
 from reportFn import genOptParamCSV, genPeakReportCSV, addFeatsToMaster
 
@@ -48,6 +47,7 @@ def peakFitBBA(filepath, config):
         peakShape = config['peakShape']
         numCurves = config['peakNo']
         fit_order = config['fit_order']
+        useBkgdImg = config['bkgdImg']
         print('config read')
     ##############End Input#######################################
     ##############################################################
@@ -67,9 +67,16 @@ def peakFitBBA(filepath, config):
     #### Data Structure object instantiation (data, fit_order, ncp_prior)
     dataIn = BlockData(dataArray, fit_order, 0.5, peakShape)
     #### has various functions
-    
+   
+    if useBkgdImg: # if a background image has been supplied
+        print(config['bkgdPath'])
+        bkgdData = np.genfromtxt(config['bkgdPath'], delimiter=',')
+        bkgdX = bkgdData[:,0]
+        bkgdY = bkgdData[:,1]
+
+        dataIn.bkgdSubImg(np.array([bkgdX, bkgdY]))
     # background subtracted with polynomial of order = fit_order, trims ends
-    if type(fit_order) is str:
+    elif type(fit_order) is str:
         dataIn.bkgdSub()
     else: 
         dataIn.bkgdSubPoly(fit_order=fit_order) 
@@ -81,7 +88,13 @@ def peakFitBBA(filepath, config):
     plt.plot(dataIn.subData[0], dataIn.bkgd, 
                 '--', label='Background', color='g')
     plt.plot(dataIn.subData[0], dataIn.subData[1],
-                 label='Background subtracted', color='r')
+                label='Background subtracted', color='r')
+    try:
+        plt.plot(dataIn.downData[0,:], dataIn.downData[1,:], label='Downsampled',
+                     color='b', marker='o', linestyle='None')
+    except Exception as e:
+        print(e)
+
     plt.legend()
     plt.savefig(savePath + basename(csvFilepath)[:-7] + '_plot.png')
     plt.close()
@@ -123,6 +136,7 @@ def findFitFSDP(inputDict, litDict):
     '''
     takes fit FWHM dictionary (paramDict) and returns tuple with FSDP loc and FWHM
     v0.2: include intensity
+    v0.3: modify limits, criteria.  Error handling
     Assumes [xloc, yloc, intensity, {peak params}, FWHM]
     '''
     locList = np.array([])
@@ -135,28 +149,38 @@ def findFitFSDP(inputDict, litDict):
                 # param list: [x-loc
                 # pick if loc is 2.3 < x < 4.0, and FWHM < 2.0, and litFWHM exists
                 validPeak = (litDict[key][0] > 2.3 and 
-                    paramList[0] < 4.0 and paramList[-1] < 2.0 and
-                    type(litDict[key][1])!=str)
+                    paramList[0] < 4.0 and paramList[-1] < 2.0)#and
+                    #type(litDict[key][1])!=str)
                 if validPeak:
                     peakNum = np.append(peakNum, key)
                     locList = np.append(locList, paramList[0])
                     FWHMList = np.append(FWHMList, paramList[-1])
                     intList = np.append(intList, paramList[2])
 
-    # grab item with lowest x0 
-    minPeakLocIndex = np.where(locList == min(locList))
-    peakIndices = np.where(peakNum == peakNum[minPeakLocIndex])
-    
-    # compare curves within peak with lowest x0
-    i = np.where(intList == max(intList[peakIndices]))
+    try:
+        # grab item with lowest x0 
+        minPeakLocIndex = np.where(locList == min(locList))
+        peakIndices = np.where(peakNum == peakNum[minPeakLocIndex])
+        
+        # compare curves within peak with lowest x0
+        i = np.where(intList == max(intList[peakIndices]))
 
-    #print('FSDP:{}'.format((locList[i], FWHMList[i], intList[i])))
-    return locList[i], FWHMList[i], intList[i]
+        #print('FSDP:{}'.format((locList[i], FWHMList[i], intList[i])))
+        a, b, c = locList[i], FWHMList[i], intList[i]
+    except Exception as e:
+        print('>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<')
+        print(e)
+        print('using non-sensical values for extracted parameter')
+        print('>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<')
+        a, b, c = 10, 0, 50
+
+    return a, b, c
 
 def findFitMaxPeak(inputDict, litDict):
     '''
     takes fit FWHM dictionary and returns tuple with FSDP loc and FWHM
     v0.2: include intensity
+    v0.3: modify limits, criteria.  Error handling
     '''
     locList = np.array([])
     FWHMList = np.array([])
@@ -171,15 +195,24 @@ def findFitMaxPeak(inputDict, litDict):
                     FWHMList = np.append(FWHMList, paramList[5])
                     intList = np.append(intList, paramList[2])
 
-    # grab curve with lowest x0 
-    maxIntIndex = np.where(intList == max(intList))
-    # find peak with found x0
-    peakIndices = np.where(peakNum == peakNum[maxIntIndex])
-    
-    # compare curves within peak with lowest x0
-    i = np.where(intList == max(intList[peakIndices]))
+    try: 
+        # grab curve with lowest x0 
+        maxIntIndex = np.where(intList == max(intList))
+        # find peak with found x0
+        peakIndices = np.where(peakNum == peakNum[maxIntIndex])
+        
+        # compare curves within peak with lowest x0
+        i = np.where(intList == max(intList[peakIndices]))
 
-    return locList[i], FWHMList[i], intList[i]
+        a, b, c = locList[i], FWHMList[i], intList[i]
+    except Exception as e:
+        print('>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<')
+        print(e)
+        print('using non-sensical values for extracted parameter')
+        print('>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<')
+        a, b, c = 10, 0, 50
+
+    return a, b, c
 
 def findFSDP(litFWHM):
     '''

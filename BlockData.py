@@ -36,8 +36,8 @@ class BlockData:
         '''
         
         # DONT Truncate data 
-        trimDataX = self.data[0]#, 50:-50]
-        trimDataY = self.data[1]#, 50:-50]
+        trimDataX = self.data[0, 50:-50]
+        trimDataY = self.data[1, 50:-50]
 
         def downsamp(size, x, y):
             '''
@@ -85,30 +85,43 @@ class BlockData:
             return J
         
         # Create a sparse data set for fitting
-        X, Y = downsamp(20, trimDataX, trimDataY)
+        X, Y = downsamp(50, trimDataX, trimDataY)
+       
+        # Remove points above median + 10% of range
+        medianY = np.median(trimDataY)
+        rangeY = np.max(trimDataY) - np.min(trimDataY)
+        X = X[Y <= (medianY + 0.1*rangeY)]
+        Y = Y[Y <= (medianY + 0.1*rangeY)]
+        
+        # Re-append end values to try and fix boundary conditions
+        X = np.append(np.append(trimDataX[0:30:5], X), trimDataX[-30:-1:5])
+        Y = np.append(np.append(trimDataY[0:30:5], Y), trimDataY[-30:-1:5])
+
 
         x0 = [1,1,1,1,1]
         #appears to converge quickly, take 10 iterations rather than 100
         result = basinhopping(objFunc, x0, niter=10) 
-        bkgd_sparse = chebFunc(X, result.x)
+        bkgd_sparse = chebFunc(trimDataX, result.x)
         # create function that interpolates sparse bkgd
-        f = interp1d(X, bkgd_sparse, kind='cubic', bounds_error=False)
+        f = interp1d(trimDataX, bkgd_sparse, kind='cubic', bounds_error=False)
 
         # expressed background values
-        bkgd = f(trimDataX)
+        bkgd1 = f(trimDataX)
+        subDataY = trimDataY - bkgd1
 
-        subDataY = trimDataY - bkgd
-        if np.min(subDataY) < 0:
-            subDataY = subDataY + np.absolute(np.min(subDataY))
-    
         # Dump any nan values in all data
         finalDataY = subDataY[~np.isnan(subDataY)]
         finalDataX = trimDataX[~np.isnan(subDataY)]
-        bkgd = bkgd[~np.isnan(subDataY)]
+        bkgd = bkgd1[~np.isnan(subDataY)]
 
+        # Offset to make all values > 0 
+        if np.min(subDataY) < 0:
+            finalDataY = finalDataY + np.absolute(np.min(finalDataY))
+        
         # Save background subtracted data
         self.subData = np.array([finalDataX, finalDataY])
         self.bkgd = bkgd
+        self.downData = np.array([X, Y])
         
         print '[[ Chevbyshev ]] background sub completed'
 
@@ -130,7 +143,24 @@ class BlockData:
         self.bkgd = np.polyval(self.fitCoeff, self.data[0, 50:-50])
             
         print '[[ polynom order {} ]] background sub completed'.format(self.fit_order)
-            
+
+    def bkgdSubImg(self, bkgdImg):
+        '''
+        Perform background subtraction using substrate image
+        input: bkgdImg is 1D data, X and Y values 
+        '''
+        self.bkgd = bkgdImg[1,:]
+
+        subDataX = self.data[0,:]
+        subDataY = self.data[1,:] - bkgdImg[1,:]
+        if np.min(subDataY) < 0:
+            subDataY = subDataY + np.absolute(np.min(subDataY))
+        elif np.min(subDataY) > 0:
+            subDataY = subDataY - np.absolute(np.min(subDataY))
+
+        self.subData = np.array([subDataX, subDataY])
+        
+        print('[[ control image ]] background subtraction completed')            
     def trimSubData(self,trimLen=50):
         '''
         Trim 50 data points from both ends of data.
@@ -271,7 +301,7 @@ class BlockData:
             fitYData = np.append(fitYData, func(xData[domain], *flatParams))
 
         # Generate residual data array
-        resid = yData - fitYData
+        resid = fitYData - yData
         RSS = np.sum(resid**2)
         
         pctErr = [] 
@@ -293,11 +323,12 @@ class BlockData:
         plt.plot(xData, yData, 'sk', label='data')
         plt.plot(xData, fitYData, '-r', label='fit')
 
+
         # vertical lines at plot boundaries
         for j in range(len(self.peakDomains)):
             xLowerLoc = xData[int(self.peakDomains[j][0])]
             plt.axvline(x=xLowerLoc, linestyle='--', color='k')
-            plt.text(xLowerLoc, np.max(yData), '{:.3f}%'.format(pctErr[j]))
+            plt.text(xLowerLoc, np.max(yData)*(1-0.035*j), '{:.3f}%'.format(pctErr[j]))
 
         plt.legend()
         plt.grid()

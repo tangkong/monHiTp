@@ -1,5 +1,5 @@
 import numpy as np
-from peakFitResidIter import peakFit, calcFWHM
+from peakFitResidIter2 import peakFit, calcFWHM
 
 def bumpFindFit(dat, peakShape, numCurves, savePath = None, filename = None):
     '''
@@ -64,6 +64,7 @@ def bumpFindFit(dat, peakShape, numCurves, savePath = None, filename = None):
     idMax = np.unique(hopIndex)
     numMax = len(idMax)
 
+    ###################################################################
     # collect data for each bump (peak).
     iCntMax = 0
 
@@ -71,6 +72,8 @@ def bumpFindFit(dat, peakShape, numCurves, savePath = None, filename = None):
     dat.litFWHM = {}
     dat.peakDomains = {}  # Datum for each peak
     dat.optParams = {}    # Optimized params for each peak
+
+    # For each peak
     for k in range(numMax):
         optParamFWHM = []
         currMax = idMax[k] 

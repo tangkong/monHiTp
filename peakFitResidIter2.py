@@ -88,10 +88,11 @@ def peakFit(data, LDatum, RDatum, peakShape, numCurves,
     
     # parameter array: [x0, y0, Intensity, alpha, gamma]
     # set up guesses
-    for i in range(numCurves): # for each curve
-        # Calculate residual
-        resid = fit - yData[domain]
-        
+    curveCnt = 0
+    resid = fit - yData[domain]
+    errorCurr = np.mean(np.absolute(resid) / (yData[domain]+1))
+    print('Peak at {0}, start iteration with error = {1}'.format(xData[loc], errorCurr))
+    while curveCnt < numCurves and errorCurr > 0.001: 
         # place peak at min residual
         xPosGuess = xData[domain][np.argmin(resid)]
         guessTemp[0] = xPosGuess
@@ -116,9 +117,17 @@ def peakFit(data, LDatum, RDatum, peakShape, numCurves,
             print(e) 
             poptTemp = guessTemp
 
-        # build guess array, update fit
-        guess += list(poptTemp)
-        fit = func(xData[domain], *guess)
+        # Check to see if error decreased
+        guessHold = guess + list(poptTemp)
+        fit = func(xData[domain], *guessHold)
+        resid = fit - yData[domain]
+        errorNew = np.mean(np.absolute(resid) / (yData[domain]+1))
+        if np.absolute(errorCurr - errorNew) < 0.0001:
+            print('no change in error: {}'.format(errorNew))
+            break #end iteration
+
+        # build guess real guess array, update fit
+        guess = guessHold
 
         # concatenate lists for bounds for real fit
         boundLower += boundLowerPart 
@@ -126,7 +135,14 @@ def peakFit(data, LDatum, RDatum, peakShape, numCurves,
 
         # Combine bounds into tuple for input
         bounds = tuple([boundLower, boundUpper])
-    
+       
+        # Calculate residual, increment, and print error information 
+        errorCurr = errorNew 
+        print('Peak at {0}, iteration {1}: error = {2}'.format(xData[loc], 
+                                                    curveCnt, errorCurr))
+        curveCnt+=1
+
+    ####################################### Now fit whole peak with acq curves 
     # Fit full curve, refining guesses
     try:
         # Curve fit function call using guess and bounds
@@ -161,9 +177,9 @@ def peakFit(data, LDatum, RDatum, peakShape, numCurves,
     
     # Organize final parameters into array
     finalParams = []
-    for j in range(numCurves):   # Plot each individual curve
-        L = 0 + j * len(popt) / numCurves  # Sep popt array
-        R = (j+1) * len(popt) / numCurves
+    for j in range(curveCnt):   # Plot each individual curve
+        L = 0 + j * len(popt) / curveCnt  # Sep popt array
+        R = (j+1) * len(popt) / curveCnt 
 
         finalParams.append(popt[L:R])
         

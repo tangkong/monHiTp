@@ -18,7 +18,7 @@ print('*************************************************************')
 #root = Tkinter.Tk()
 #root.withdraw()
 
-dataPath = os.path.expanduser('/data/b_mehta/bl1-5/Nov2017/Takeuchi/NiTiCuCo_SampleID1/')
+dataPath = os.path.expanduser('~/monHiTp/testTakeuchi/')
 #dataPath = tkFileDialog.askdirectory(title='Select folder to process')
 if dataPath is '':
     print('No data folder selected, aborting...')

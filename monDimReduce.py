@@ -24,7 +24,7 @@ from add_feature_to_master import add_feature_to_master
 from nearest_neighbor_cosine_distances import nearst_neighbor_distance
 from reportFn import addFeatsToMaster
 
-def SAXSDimReduce(calibPath, pathname, QRange=None, ChiRange=None):
+def SAXSDimReduce(calibPath, pathname, config): #QRange=None, ChiRange=None):
     '''
     Processing script, reducing images to 1D plots (Q-Chi, Texture, etc)
     '''
@@ -69,6 +69,18 @@ def SAXSDimReduce(calibPath, pathname, QRange=None, ChiRange=None):
     d = d_in_pixel * pixelSize * 0.001  # measured in milimeters
 
     print 'Processing image file: ' + pathname 
+    if not config:
+        print('no config file found')
+    else: 
+        QRange = (config['Qmin'],config['Qmax'])
+        ChiRange = (config['ChiMin'],config['ChiMax'])
+        # require all bounds to exist, currently can't check default limits
+        if (any(isinstance(n,str) for n in QRange) or 
+                any(isinstance(m,str) for m in ChiRange)):
+            print('Pass found, ignoring Q,Chi limits')
+            QRange, ChiRange = None, None
+      
+        print('config read')
 
     ###### BEGIN PROCESSING IMAGE####################################################
     # import image and convert it into an array
