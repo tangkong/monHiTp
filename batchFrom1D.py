@@ -18,13 +18,15 @@ print('*************************************************************')
 #root = Tkinter.Tk()
 #root.withdraw()
 
-dataPath = os.path.expanduser('~/monHiTp/testTakeuchi/')
+dataPath = os.path.expanduser('~/monHiTp/testTakeI/')
+#dataPath = os.path.expanduser('~/data/bl1-5/Nov2017/Takeuchi/NiTiCuCo_1_Exposure30s/')
+#dataPath = os.path.expanduser('~/data/bl1-5/May2018/AlTiCo/data/k11a/')
 #dataPath = tkFileDialog.askdirectory(title='Select folder to process')
 if dataPath is '':
     print('No data folder selected, aborting...')
     sys.exit()
 
-configPath = os.path.expanduser('~/monHiTp/config_From1D')
+configPath = os.path.expanduser('~/monHiTp/config')
 #configPath = tkFileDialog.askopenfilename(title='Select Config File')
 if configPath is '':
     print('No config file supplied, aborting...')

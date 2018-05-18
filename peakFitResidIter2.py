@@ -11,7 +11,7 @@ import os, sys
 #import personal modules
 from peakShapes import voigtFn, gaussFn
 
-def peakFit(data, LDatum, RDatum, peakShape, numCurves,
+def peakFitVar(data, LDatum, RDatum, peakShape, numCurves,
              savePath = None, filename = None):
     '''
     Peak fitting function.  Fits with ?various? functions?  
@@ -99,9 +99,9 @@ def peakFit(data, LDatum, RDatum, peakShape, numCurves,
         guessTemp[2] = np.max(resid) - np.min(resid)
             
         # Deal with edge cases.. 
-        xPosLow = xPosGuess - 0.05*xRange
+        xPosLow = xPosGuess - 0.01*xRange
         if xPosLow < xData[0]: xPosLow = xData[0]
-        xPosHigh = xPosGuess + 0.05*xRange
+        xPosHigh = xPosGuess + 0.01*xRange
         if xPosHigh > xData[-1]: xPosHigh = xData[-1]
             
         # Update temp bounds to be close to position guess

@@ -1,7 +1,8 @@
 import numpy as np
-from peakFitResidIter2 import peakFit, calcFWHM
+from peakFitResidIter import peakFit, calcFWHM
+from peakFitResidIter2 import peakFitVar
 
-def bumpFindFit(dat, peakShape, numCurves, savePath = None, filename = None):
+def bumpFindFit(dat, peakShape, numCurves, config, savePath = None, filename = None):
     '''
     Separate data into peaks and fit them.  Plot fitted peaks and plot output.
     *Use hill climbing to find local max
@@ -91,8 +92,12 @@ def bumpFindFit(dat, peakShape, numCurves, savePath = None, filename = None):
         ############################################################################## 
         # Get parameters from peak fit
         if (savePath != None) and (filename != None):
-            optParam, FWHM = peakFit(dat.subData, leftDatum, rightDatum, 
-                                peakShape, numCurves, savePath, filename)
+            if config['fitMode'] == 'var':
+                optParam, FWHM = peakFitVar(dat.subData, leftDatum, rightDatum, 
+                                    peakShape, numCurves, savePath, filename)
+            else: #Default action=fit with set number of peaks
+                optParam, FWHM = peakFit(dat.subData, leftDatum, rightDatum, 
+                                    peakShape, numCurves, savePath, filename)
         else:
             optParam, FWHM = peakFit(dat.subData, leftDatum, rightDatum, 
                                 peakShape, numCurves)

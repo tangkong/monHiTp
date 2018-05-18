@@ -22,7 +22,16 @@
         + Look at possibly merging blocks, dealing with peaks with multiple curves w/in
         + Look into making single file processing script 
 
+2018.05.11
+    -Implemented fitting with variable number of curves, using error to determine halt
+    -Limited location of peaks to within peak, to prevent confusion when selecting FSDP
+    -Fixed cheb bkgd to pin at ends of data, nice results
 
+2018.05.18
+    -Modified peak selection algo for feature extraction to incorp yMax data 
+        (interpreting curves).  
+    -Implemented control for var vs set number of peaks in config files
+    -Imp minimum yMax for peak selection
 
 Usage notes:
     * When restricting integration limits in Q, consider using poly fit rather than chevbyshev.  Using Cheb for single peaks will over-fit backgrounds.  

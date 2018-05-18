@@ -1,4 +1,4 @@
-import matplotlib
+import matplotlib 
 #matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,7 +11,7 @@ import re
 from BlockData import BlockData
 from bumpFindFit import bumpFindFit
 from reportFn import genOptParamCSV, genPeakReportCSV, addFeatsToMaster
-
+from peakShapes import voigtFn, gaussFn
 import time
 
 def peakFitBBA(filepath, config):
@@ -110,7 +110,7 @@ def peakFitBBA(filepath, config):
     
     
     # Get optimized parameters from fitting each block and plot
-    paramDict, litFWHM = bumpFindFit(dataIn, peakShape, numCurves, 
+    paramDict, litFWHM = bumpFindFit(dataIn, peakShape, numCurves, config, 
                             savePath, basename(csvFilepath)[:-7])
    
     # Print information to terminal, print data to csv
@@ -128,11 +128,12 @@ def peakFitBBA(filepath, config):
     # Add features to master metadata
     # hard pull items for now
     attDict['scanNo'] = int(index)
-    attDict['FSDP_loc'], attDict['FSDP_FWHM'], attDict['FSDP_Intens'] = findFitFSDP(paramDict, litFWHM) 
-    attDict['maxPeak_loc'], attDict['maxPeak_FWHM'], attDict['maxPeak_Intens'] = findFitMaxPeak(paramDict, litFWHM)
+    (attDict['FSDP_loc'], attDict['FSDP_FWHM'], attDict['FSDP_Intens'], 
+        attDict['FSDP_yMax']) = findFitFSDP(paramDict, litFWHM, config)
+    (attDict['maxPeak_loc'], attDict['maxPeak_FWHM'], attDict['maxPeak_Intens']) = findFitMaxPeak(paramDict, litFWHM, config)
     addFeatsToMaster(attDict, masterPath)
 
-def findFitFSDP(inputDict, litDict):
+def findFitFSDP(inputDict, litDict, config):
     '''
     takes fit FWHM dictionary (paramDict) and returns tuple with FSDP loc and FWHM
     v0.2: include intensity
@@ -143,30 +144,47 @@ def findFitFSDP(inputDict, litDict):
     FWHMList = np.array([])
     intList = np.array([])
     peakNum = np.array([])
+    peakList = np.array([])
     for key, item in inputDict.items():
         if type(key) is not str:
             for paramList in item:
+                #print(paramList)
+                
+                # Calc max based on curveShape
+                if config['peakShape'] == 'voigt':
+                    func = voigtFn
+                elif config['peakShape'] == 'gauss':
+                    func = gaussFn
+                else: 
+                    func = voigtFn
+                #print('I: {}'.format(paramList[2]))
+                xRange = np.linspace(paramList[0]-0.1, paramList[0]+0.1,1000)
+                yMax = np.max(func(xRange, *paramList[:-1])) # Dropping FWHM
+                #print('ymax: {}'.format(yMax))
+
                 # param list: [x-loc
                 # pick if loc is 2.3 < x < 4.0, and FWHM < 2.0, and litFWHM exists
                 validPeak = (litDict[key][0] > 2.3 and 
-                    paramList[0] < 4.0 and paramList[-1] < 2.0)#and
+                    paramList[0] < 4.0 and paramList[-1] < 2.0 and 
+                    yMax > 10 )#and
                     #type(litDict[key][1])!=str)
                 if validPeak:
                     peakNum = np.append(peakNum, key)
                     locList = np.append(locList, paramList[0])
                     FWHMList = np.append(FWHMList, paramList[-1])
                     intList = np.append(intList, paramList[2])
+                    peakList = np.append(peakList, yMax)
 
     try:
         # grab item with lowest x0 
         minPeakLocIndex = np.where(locList == min(locList))
         peakIndices = np.where(peakNum == peakNum[minPeakLocIndex])
         
-        # compare curves within peak with lowest x0
-        i = np.where(intList == max(intList[peakIndices]))
+        # compare curves within (peak with lowest x0), select curve with highest yMax
+        i = np.where(peakList == max(peakList[peakIndices]))
 
         #print('FSDP:{}'.format((locList[i], FWHMList[i], intList[i])))
-        a, b, c = locList[i], FWHMList[i], intList[i]
+        a, b, c, d = locList[i], FWHMList[i], intList[i], peakList[i]
     except Exception as e:
         print('>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<')
         print(e)
@@ -174,9 +192,9 @@ def findFitFSDP(inputDict, litDict):
         print('>>>>>>>>>>>>>>>>>>>>>>><<<<<<<<<<<<<<<<<<<<<')
         a, b, c = 10, 0, 50
 
-    return a, b, c
+    return a, b, c, d
 
-def findFitMaxPeak(inputDict, litDict):
+def findFitMaxPeak(inputDict, litDict, config):
     '''
     takes fit FWHM dictionary and returns tuple with FSDP loc and FWHM
     v0.2: include intensity
@@ -186,6 +204,7 @@ def findFitMaxPeak(inputDict, litDict):
     FWHMList = np.array([])
     intList = np.array([])
     peakNum = np.array([])
+    peakList = np.array([])
     for key, item in inputDict.items():
         if type(key) is not str:
             for paramList in item:
@@ -195,9 +214,21 @@ def findFitMaxPeak(inputDict, litDict):
                     FWHMList = np.append(FWHMList, paramList[5])
                     intList = np.append(intList, paramList[2])
 
+                    # Calc max based on curveShape
+                    if config['peakShape'] == 'voigt':
+                        func = voigtFn
+                    elif config['peakShape'] == 'gauss':
+                        func = gaussFn
+                    else: 
+                        func = voigtFn
+                    #print('I: {}'.format(paramList[2]))
+                    xRange = np.linspace(paramList[0]-0.1, paramList[0]+0.1,1000)
+                    yMax = np.max(func(xRange, *paramList[:-1])) # Dropping FWHM
+                    peakList = np.append(peakList, yMax)
+                    #print('ymax: {}'.format(yMax))
     try: 
-        # grab curve with lowest x0 
-        maxIntIndex = np.where(intList == max(intList))
+        # grab curve with highest yMax 
+        maxIntIndex = np.where(peakList == max(peakList))
         # find peak with found x0
         peakIndices = np.where(peakNum == peakNum[maxIntIndex])
         

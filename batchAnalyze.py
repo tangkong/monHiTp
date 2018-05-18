@@ -18,15 +18,15 @@ print('*************************************************************')
 #root = Tkinter.Tk()
 #root.withdraw()
 
-#calibPath = os.path.expanduser('/data/b_mehta/bl1-5/Calibration/Mar2018/cal_28mar18.calib')
-calibPath = os.path.expanduser('~/monHiTp/testBkgdImg/calib_8May18a.calib')
+calibPath = os.path.expanduser('/home/b_mehta/data/bl1-5/May2018/LaB6/calib_13May18n.calib')
+#calibPath = os.path.expanduser('~/monHiTp/testBkgdImg/calib_8May18a.calib')
 #calibPath = tkFileDialog.askopenfilename(title='Select Calibration File')
 if calibPath is '':
     print('No calibration path selected, aborting...')
     sys.exit()
 
-#dataPath = os.path.expanduser('/data/b_mehta/bl1-5/Mar2018/CoTaZr/data/k3b/')
-dataPath = os.path.expanduser('~/monHiTp/testBkgdImg/')
+dataPath = os.path.expanduser('/home/b_mehta/data/bl1-5/May2018/AlTiCo/data/k11a/')
+#dataPath = os.path.expanduser('~/monHiTp/testBkgdImg/')
 #dataPath = tkFileDialog.askdirectory(title='Select folder to process')
 if dataPath is '':
     print('No data folder selected, aborting...')

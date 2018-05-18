@@ -107,7 +107,8 @@ def SAXSDimReduce(calibPath, pathname, config): #QRange=None, ChiRange=None):
     # save 1D plot with detected peaks shown in the plot
     if QRange:
         titleAddStr = ', Q:' + str(QRange) + ', Chi:' + str(ChiRange)
-    else: titleAddStr = '.' 
+    else: 
+        titleAddStr = '.' 
     save_1Dplot(Qlist, IntAve, peaks, fileRoot, save_path, 
                 titleAdd=titleAddStr)
 
