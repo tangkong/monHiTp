@@ -7,6 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import re
+import scipy
 
 def FWHMmap(pathname):
     '''
@@ -75,7 +76,9 @@ def FWHMmap(pathname):
         plt.title('FWHM at FSDP')
         plt.xlim((-38,38))
         plt.ylim((-38,38))
-        plt.clim((0.2,0.6))
+        plt.clim(scipy.stats.scoreatpercentile(FSDP_FWHM, 5),
+             scipy.stats.scoreatpercentile(FSDP_FWHM, 95))
+        #plt.clim((0.2,0.6))
         plt.colorbar()
         plt.tight_layout()
         plt.savefig(savePath)

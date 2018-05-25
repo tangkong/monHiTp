@@ -33,6 +33,9 @@
     -Implemented control for var vs set number of peaks in config files
     -Imp minimum yMax for peak selection
 
+2018.05.25
+    -Started documenting 
+
 Usage notes:
     * When restricting integration limits in Q, consider using poly fit rather than chevbyshev.  Using Cheb for single peaks will over-fit backgrounds.  
     * inputting "pass" or any text in Q-chi limits will cause script to not take any integration bounds
@@ -43,3 +46,7 @@ Problem Log:
 -Zinger disrupting hill climbing algorithms for peak finding
 -Background subtraction not following background well.  
     further downsampling doesn't help fully, works nice
+
+To-Do:
+-Timing/comparison?
+

@@ -2,10 +2,17 @@
 Monitor HiTp readme
 Author: Robert Tang-Kong
 ###############################################################################
+------------Global Dependencies:-----------------------------------------------
+os
+glob
+re
+time
+numpy
+sys
+scipy
+matplotlib
 
-
-------------Dependencies:
--------------------------------------------------------------------------------
+------------Package Dependencies:----------------------------------------------
 monitorWrap
     pyinotify
     Tkinter
@@ -13,28 +20,37 @@ monitorWrap
     ->peakBBA
     ->save_wafer_heatMap
 monDimReduce
-    parsing_calib
+    input_file_parsing
     image_loader
     data_reduction_smooth
-    save_Qchi
-    save_1Dplot
-    save_1Dcsv
-    extract_max_ave_intensity
-    extract_peak_number
-    save_texture_plot_csv
-    extract_texture_extent
+    saveDimRedPack
+    extDimRedPack
+    add_feature_to_master
     nearest_neighbor_cosine_distances
-    extract_signal_to_noise_ratio
     reportFn
+BlockData
+    peakShapes
 peakBBA
     BlockData
-    peakFitResidIter
-    bumpFindFIt
+    bumpFindFit
+    peakShapes
+    selectPeakCriteria
     reportFn
-
+bumpFindFit
+    peakFitResidIter
+    peakFitResidIter2
+peakFitResitIter(2)
+    peakShapes
 
 
 ------------Notes
 Config file for:
     Peak fitting params (peak shape, peak number)
     Integration range (Qbounds)
+    fit order
+    highlight limit (contrast wafer map)
+    Start,stop img
+    Skip option (skip files with existing _1D.csv files
+    bkgd subtraction with control image
+    Fit mode (var = flexible number of peaks, set = use set number of peaks)
+

@@ -134,8 +134,8 @@ class BlockData:
             self.fit_order = fitOrder
             
         self.fitCoeff = np.polyfit(self.data[0], self.data[1], self.fit_order)
-        fitDataX = self.data[0, 50:-50]
-        fitDataY = self.data[1, 50:-50] - np.polyval(self.fitCoeff, 
+        fitDataX = self.data[0, :]
+        fitDataY = self.data[1, :] - np.polyval(self.fitCoeff, 
                                                       self.data[0, 50:-50])
         if np.min(fitDataY) < 0:
             fitDataY = fitDataY + np.absolute(np.min(fitDataY))
@@ -161,12 +161,12 @@ class BlockData:
         self.subData = np.array([subDataX, subDataY])
         
         print('[[ control image ]] background subtraction completed')            
-    def trimSubData(self,trimLen=50):
+    def trimData(self,trimLen=50):
         '''
         Trim 50 data points from both ends of data.
         '''
-        self.subData = np.array([self.subData[0,trimLen:-trimLen], 
-                                    self.subData[1,trimLen:-trimLen]])
+        self.data = np.array([self.data[0,trimLen:-trimLen], 
+                                    self.data[1,trimLen:-trimLen]])
 
     def blockFinder(self):
         '''
@@ -213,6 +213,7 @@ class BlockData:
             # Iterate if desired, to implement later
             break
 
+
         numCP = len(cp)
         numBlocks = numCP + 1
 
@@ -229,7 +230,7 @@ class BlockData:
         #print('lenCP: {0}'.format(len(cp)))
         
         # what does this stuff do I don't know...
-        print('numBlocks: {0}'.format(numBlocks))
+        print('numBlocks: {0}, dataPts/Block: {1}'.format(numBlocks, len(self.subData[0,:])/numBlocks))
         for idBlock in range(numBlocks):
             # set ii1, ii2 as indexes.  Fix edge case at end of blocks
             ii1 = int(cptUse[idBlock])
@@ -322,7 +323,7 @@ class BlockData:
         frame1 = fig.add_axes((0.1, 0.3, 0.8, 0.6))
         plt.plot(xData, yData, 'sk', label='data')
         plt.plot(xData, fitYData, '-r', label='fit')
-
+        #plt.plot(xData[self.changePoints.astype(int)-1], yData[self.changePoints.astype(int)-1], 'rs', label='cp')
 
         # vertical lines at plot boundaries
         for j in range(len(self.peakDomains)):

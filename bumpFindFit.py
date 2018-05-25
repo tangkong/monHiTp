@@ -3,11 +3,11 @@ from peakFitResidIter import peakFit, calcFWHM
 from peakFitResidIter2 import peakFitVar
 
 def bumpFindFit(dat, peakShape, numCurves, config, savePath = None, filename = None):
-    '''
-    Separate data into peaks and fit them.  Plot fitted peaks and plot output.
+    ''' Separate data into peaks and fit them.  Plot fitted peaks and plot output.
     *Use hill climbing to find local max
     *Incorporate blocks that climbed to bump as peaks
     *Fit bumps using desired curve and number per peak
+
     input: data array (x,y), desired peak shape, num curves per peak, save info
     output: peak data dictionary
             #: Array of arrays [numCurves x numParamsPerCurve]
