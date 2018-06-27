@@ -43,10 +43,6 @@ Usage notes:
 
 
 Problem Log:
--Zinger disrupting hill climbing algorithms for peak finding
--Background subtraction not following background well.  
-    further downsampling doesn't help fully, works nice
 
 To-Do:
--Timing/comparison?
-
+-Check compatibility with other detector image types

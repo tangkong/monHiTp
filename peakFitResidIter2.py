@@ -124,6 +124,18 @@ def peakFitVar(data, LDatum, RDatum, peakShape, numCurves,
         errorNew = np.mean(np.absolute(resid) / (yData[domain]+1))
         if np.absolute(errorCurr - errorNew) < 0.0001:
             print('no change in error: {}'.format(errorNew))
+
+            if curveCnt == 0: # if first peak does not change error
+                # build guess real guess array, update fit
+                guess = guessHold
+
+                # concatenate lists for bounds for real fit
+                boundLower += boundLowerPart 
+                boundUpper += boundUpperPart
+
+                # Combine bounds into tuple for input
+                bounds = tuple([boundLower, boundUpper])
+           
             break #end iteration
 
         # build guess real guess array, update fit

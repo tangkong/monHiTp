@@ -34,8 +34,10 @@ def peakFitBBA(filepath, config):
     savePath = processedPath + 'peak_details/'
     csvFilepath = os.path.join(processedPath, fileRoot + '_1D.csv')
 
-    # Master CSV path
-    base_filename = re.match('(.*?)[0-9]+.[a-zA-Z]+$',filename).group(1) # name w/o ind
+    # Generate Master CSV path
+    ### name w/o ind
+    base_filename = re.match('(.*?)[0-9]+.[a-zA-Z]+$',filename).group(1) 
+    ### index
     index = re.match('.*?([0-9]+).[a-zA-Z]+$',filename).group(1)
     masterPath = os.path.join(folder_path, base_filename + 'master.csv')
     attDict = {'scanNo': index}

@@ -51,7 +51,7 @@ def peakFit(data, LDatum, RDatum, peakShape, numCurves,
     
     # Initialize guess and bound arrays with correct shape for each function
     xRange = xData[RDat] - xData[LDat]
-    xDomain = xData[0] - xData[-1]
+    #xDomain = xData[0] - xData[-1]
     if peakShape == 'Voigt':
         func = voigtFn
         # x0 and I values to be replaced during loop
