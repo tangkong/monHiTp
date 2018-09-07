@@ -9,6 +9,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import sys
 from os.path import basename
+import time
 
 #import personal modules
 from peakShapes import voigtFn, gaussFn
@@ -36,8 +37,8 @@ class BlockData:
         '''
         
         # DONT Truncate data if processing from tif
-        trimDataX = self.data[0, :]#50:-50]
-        trimDataY = self.data[1, :]#50:-50]
+        trimDataX = self.data[0, 50:-50]
+        trimDataY = self.data[1, 50:-50]
 
         def downsamp(size, x, y):
             '''
@@ -173,6 +174,8 @@ class BlockData:
         Performs Bayesian Block finding on subData and records change point array
         Algorithm description is hard....
         '''
+        start = time.time()
+
         data_mode = 3
         numPts = len(self.cellData)
         tt = np.arange(numPts)
@@ -262,6 +265,14 @@ class BlockData:
         self.nn           = nnVec
 
         self.cptUse       = cptUse
+        end = time.time()
+
+        print('TTTTTTTTTTTTTTTTTTTT:: time elapsed: {}'.format(end-start))
+
+        print('len(cp): {}'.format(len(cp)))
+        print('len(cptUse): {}'.format(len(cptUse)))
+        print('len(data): {}'.format(len(self.subData[0])))
+
         return None # end blockFinder method
 
     def genResidPlot(self, savePath, file):

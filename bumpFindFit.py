@@ -1,4 +1,5 @@
 import numpy as np
+import time
 from peakFitResidIter import peakFit, calcFWHM
 from peakFitResidIter2 import peakFitVar
 
@@ -12,6 +13,7 @@ def bumpFindFit(dat, peakShape, numCurves, config, savePath = None, filename = N
     output: peak data dictionary
             #: Array of arrays [numCurves x numParamsPerCurve]
     '''
+    start = time.time()
 
     numBlocks = len(dat.rateVec)
     # add beginning and ending changePoints
@@ -64,7 +66,10 @@ def bumpFindFit(dat, peakShape, numCurves, config, savePath = None, filename = N
 
     idMax = np.unique(hopIndex)
     numMax = len(idMax)
+    
+    end = time.time()
 
+    print('TTTTTTTTTTTTTTTTTTT:: time to HOP: {:.6f}s'.format(end-start))
     ###################################################################
     # collect data for each bump (peak).
     iCntMax = 0

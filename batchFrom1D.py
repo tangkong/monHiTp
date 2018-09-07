@@ -18,8 +18,8 @@ print('*************************************************************')
 #root = Tkinter.Tk()
 #root.withdraw()
 
-#dataPath = os.path.expanduser('~/monHiTp/testTakeI/')
-dataPath = os.path.expanduser('~/data/bl1-5/Nov2017/Takeuchi/NiTiCuCo_SampleID2/')
+dataPath = os.path.expanduser('~/monHiTp/testTiming/')
+#dataPath = os.path.expanduser('~/data/bl1-5/Nov2017/Takeuchi/NiTiCuCo_SampleID2/')
 #dataPath = os.path.expanduser('~/data/bl1-5/May2018/AlTiCo/data/k11a/')
 #dataPath = tkFileDialog.askdirectory(title='Select folder to process')
 if dataPath is '':

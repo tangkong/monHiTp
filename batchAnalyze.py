@@ -18,15 +18,16 @@ print('*************************************************************')
 #root = Tkinter.Tk()
 #root.withdraw()
 
+calibPath = os.path.expanduser('/home/b_mehta/data/bl1-5/Nov2017/Takeuchi/huilong/LaB6_cali_final_201703.calib')
 #calibPath = os.path.expanduser('/home/b_mehta/data/bl1-5/May2018/LaB6/calib_13May18n.calib')
-calibPath = os.path.expanduser('~/monHiTp/testHold/8Nov17_calib_1.calib')
+#calibPath = os.path.expanduser('~/monHiTp/testHold/8Nov17_calib_1.calib')
 #calibPath = tkFileDialog.askopenfilename(title='Select Calibration File')
 if calibPath is '':
     print('No calibration path selected, aborting...')
     sys.exit()
-
+dataPath = os.path.expanduser('/home/b_mehta/data/bl1-5/Nov2017/Takeuchi/Huilone_NiTiCu/')
 #dataPath = os.path.expanduser('/home/b_mehta/data/bl1-5/May2018/AlTiCo/data/k11a/')
-dataPath = os.path.expanduser('~/monHiTp/testHold/')
+#dataPath = os.path.expanduser('~/monHiTp/testHold/')
 #dataPath = tkFileDialog.askdirectory(title='Select folder to process')
 if dataPath is '':
     print('No data folder selected, aborting...')
@@ -127,7 +128,6 @@ for filePath in fileGen:
     stage2Time += [(stage2int - stage1int)]
 
 
-    break
 
 # Evaluate performance
 avgTime = np.mean(loopTime)

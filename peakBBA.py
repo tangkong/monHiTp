@@ -13,6 +13,7 @@ from bumpFindFit import bumpFindFit
 from reportFn import genOptParamCSV, genPeakReportCSV, addFeatsToMaster
 from peakShapes import voigtFn, gaussFn
 from selectPeakCriteria import findFitFSDP, findFitMaxPeak
+from saveDimRedPack import save_1Dcsv
 import time
 
 def peakFitBBA(filepath, config):
@@ -104,6 +105,8 @@ def peakFitBBA(filepath, config):
     plt.legend()
     plt.savefig(savePath + basename(csvFilepath)[:-7] + '_plot.png')
     plt.close()
+
+    save_1Dcsv(dataIn.subData[0], dataIn.subData[1], fileRoot+'_bkgdSub', savePath)
 
     # Guess at noise level
     hld = dataIn.subData
